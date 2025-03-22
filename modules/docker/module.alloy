@@ -1,0 +1,80 @@
+declare "discover" {
+  argument "label_filters" {
+    comment = "The label filters to use to find matching targets (default: [])"
+    optional = true
+  }
+
+  argument "port_regex" {
+    comment = "The port(s) to use to find matching targets (default (.*))"
+    optional = true
+  }
+
+  argument "public_ip_regex" {
+    comment = "The public ip(s) to use to find matching targets (default (.*))"
+    optional = true
+  }
+
+  discovery.docker "containers" {
+    host = "unix:///var/run/docker.sock"
+
+    filter {
+      name = "label"
+      values = coalesce(argument.label_filters.value, [])
+    }
+  }
+
+  discovery.relabel "containers" {
+    targets = discovery.docker.containers.targets
+
+    rule {
+      source_labels = ["__meta_docker_port_private"]
+      regex = coalesce(argument.port_regex.value, "(.*)")
+      action = "keep"
+    }
+
+    rule {
+      source_labels = ["__meta_docker_port_public_ip"]
+      regex = coalesce(argument.public_ip_regex.value, "(.*)")
+      action = "keep"
+    }
+
+    rule {
+      source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+      target_label = "namespace"
+    }
+
+    rule {
+      source_labels = ["__meta_docker_container_label_com_docker_compose_project", "__meta_docker_container_label_com_docker_compose_service"]
+      target_label = "job"
+      separator = "/"
+    }
+  }
+
+  export "output" {
+    value = discovery.relabel.containers.output
+  }
+}
+
+declare "change_scrape_port" {
+    argument "targets" {
+        comment = "The targets to change the scrape port for"
+    }
+
+    argument "port" {
+        comment = "The scrape port to use"
+    }
+
+    discovery.relabel "force_port" {
+        targets = argument.targets.value
+
+        rule {
+            source_labels = ["__meta_docker_network_ip"]
+            target_label = "__address__"
+            replacement = string.join(["$1", argument.port.value], ":")
+        }
+    }
+
+    export "output" {
+        value = discovery.relabel.force_port.output
+    }
+}
