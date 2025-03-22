@@ -56,25 +56,25 @@ declare "discover" {
 }
 
 declare "change_scrape_port" {
-    argument "targets" {
-        comment = "The targets to change the scrape port for"
-    }
+  argument "targets" {
+    comment = "The targets to change the scrape port for"
+  }
 
-    argument "port" {
-        comment = "The scrape port to use"
-    }
+  argument "port" {
+    comment = "The scrape port to use"
+  }
 
-    discovery.relabel "force_port" {
-        targets = argument.targets.value
+  discovery.relabel "force_port" {
+    targets = argument.targets.value
 
-        rule {
-            source_labels = ["__meta_docker_network_ip"]
-            target_label = "__address__"
-            replacement = string.join(["$1", argument.port.value], ":")
-        }
+    rule {
+      source_labels = ["__meta_docker_network_ip"]
+      target_label = "__address__"
+      replacement = string.join(["$1", argument.port.value], ":")
     }
+  }
 
-    export "output" {
-        value = discovery.relabel.force_port.output
-    }
+  export "output" {
+    value = discovery.relabel.force_port.output
+  }
 }
