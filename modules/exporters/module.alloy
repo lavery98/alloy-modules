@@ -16,7 +16,7 @@ declare "self" {
   }
 
   export "output" {
-    value = discovery.relabel.self.output,
+    value = discovery.relabel.self.output
   }
 }
 
