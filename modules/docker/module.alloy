@@ -69,6 +69,13 @@ declare "change_scrape_port" {
 
     rule {
       source_labels = ["__meta_docker_network_ip"]
+      regex = ""
+      target_label = "__meta_docker_network_ip"
+      replacement = "127.0.0.1"
+    }
+
+    rule {
+      source_labels = ["__meta_docker_network_ip"]
       target_label = "__address__"
       replacement = string.join(["$1", argument.port.value], ":")
     }
