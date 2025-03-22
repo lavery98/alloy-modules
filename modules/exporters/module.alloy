@@ -16,7 +16,7 @@ declare "self" {
   }
 
   export "output" {
-    discovery.relabel.self.output,
+    value = discovery.relabel.self.output,
   }
 }
 
@@ -42,6 +42,6 @@ declare "unix" {
   }
 
   export "output" {
-    discovery.relabel.unix.output,
+    value = discovery.relabel.unix.output
   }
 }
