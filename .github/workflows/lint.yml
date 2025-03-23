@@ -1,0 +1,28 @@
+---
+name: Lint
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: robinraju/release-downloader@v1
+        with:
+          repository: 'grafana/alloy'
+          latest: true
+          filename: 'alloy-linux-amd64.zip'
+          extract: true
+
+      - name: Set Alloy binary to be executable
+        run: 'chmod +x alloy-linux-amd64'
+
+      - name: Run linting script
+        run: './scripts/lint.sh'
