@@ -3,14 +3,37 @@ declare "local" {
 		comment = "A list(LogsReceiver) of where collected logs should be forwarded to (required)"
 	}
 
-	loki.source.journal "local" {
-		forward_to = [loki.relabel.local.receiver]
+  loki.relabel "pre" {
+    forward_to = []
+
+    rule {
+      action = "replace"
+      source_labels = ["__journal__systemd_unit"]
+      target_label = "unit"
+    }
+
+    rule {
+      action = "replace"
+      source_labels = ["__journal__transport"]
+      target_label = "transport"
+    }
+
+    rule {
+      action = "replace"
+      source_labels = ["__journal_priority_keyword"]
+      target_label = "severity"
+    }
+  }
+
+	loki.source.journal "read" {
+		forward_to = [loki.relabel.post.receiver]
     labels = {
       component = "loki.source.journal",
     }
+    relabel_rules = loki.relabel.pre.rules
 	}
 
-	loki.relabel "local" {
+	loki.relabel "post" {
 		forward_to = argument.forward_to.value
 	}
 }
