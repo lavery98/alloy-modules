@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1
         with:
-          reository: 'grafana/alloy'
+          repository: 'grafana/alloy'
           latest: true
           filename: 'alloy-linux-amd64.zip'
           extract: true
