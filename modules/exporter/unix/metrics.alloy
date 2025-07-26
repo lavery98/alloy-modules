@@ -1,13 +1,27 @@
 declare "local" {
+	argument "enable_collectors" {
+		comment  = "A list(string) of collectors to enable (default: see below)"
+		optional = true
+	}
+
+	argument "disable_collectors" {
+		comment  = "A list(string) of collectors to disable (default: see below)"
+		optional = true
+	}
+
 	argument "namespace_label" {
 		comment  = "The namespace label to add for all metrics (default: node)"
 		optional = true
 	}
 
-	prometheus.exporter.self "local" { }
+	prometheus.exporter.unix "local" {
+		include_exporter_metrics = true
+		enable_collectors        = coalesce(argument.enable_collectors.value, ["logind", "mountstats", "processes", "systemd", "tcpstat"])
+		disable_collectors       = coalesce(argument.disable_collectors.value, ["mdadm"])
+	}
 
 	discovery.relabel "local" {
-		targets = prometheus.exporter.self.local.targets
+		targets = prometheus.exporter.unix.local.targets
 
 		rule {
 			action       = "replace"
@@ -31,7 +45,7 @@ declare "scrape" {
 	}
 
 	argument "job_label" {
-		comment  = "The job label to add for all metrics (default: integrations/alloy)"
+		comment  = "The job label to add for all metrics (default: integrations/node_exporter)"
 		optional = true
 	}
 
@@ -55,20 +69,20 @@ declare "scrape" {
 		optional = true
 	}
 
-	prometheus.scrape "alloy" {
-		forward_to      = [prometheus.relabel.alloy.receiver]
+	prometheus.scrape "unix" {
+		forward_to      = [prometheus.relabel.unix.receiver]
 		targets         = argument.targets.value
 		scrape_interval = coalesce(argument.scrape_interval.value, "60s")
 		scrape_timeout  = coalesce(argument.scrape_timeout.value, "10s")
 	}
 
-	prometheus.relabel "alloy" {
+	prometheus.relabel "unix" {
 		forward_to = argument.forward_to.value
 
 		// Drop metrics that match the drop_metrics regex
 		rule {
 			action        = "drop"
-			regex         = coalesce(argument.drop_metrics.value, "(^(go|process)_.+$)")
+			regex         = coalesce(argument.drop_metrics.value, "(^(go)_.+$)")
 			source_labels = ["__name__"]
 		}
 
@@ -79,10 +93,18 @@ declare "scrape" {
 			source_labels = ["__name__"]
 		}
 
+		// Drop metrics for certain file systems
+		rule {
+			action        = "drop"
+			regex         = "node_filesystem.*@(tmpfs)"
+			separator     = "@"
+			source_labels = ["__name__", "fstype"]
+		}
+
 		// Change job label for all metrics
 		rule {
 			action       = "replace"
-			replacement  = coalesce(argument.job_label.value, "integrations/alloy")
+			replacement  = coalesce(argument.job_label.value, "integrations/node_exporter")
 			target_label = "job"
 		}
 	}
