@@ -72,6 +72,12 @@ declare "scrape" {
       source_labels = ["__name__"]
     }
 
+    rule {
+      action = "keep"
+      regex = coalesce(argument.keep_metrics.value, "(.*)")
+      source_labels = ["__name__"]
+    }
+
     // Change job label for all metrics
     rule {
       action = "replace"
