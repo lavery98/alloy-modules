@@ -1,0 +1,16 @@
+declare "local" {
+	argument "forward_to" {
+		comment = "A list(LogsReceiver) of where collected logs should be forwarded to (required)"
+	}
+
+	loki.source.journal "local" {
+		forward_to = [loki.relabel.local.receiver]
+    labels = {
+      component = "loki.source.journal"
+    }
+	}
+
+	loki.relabel "local" {
+		forward_to = argument.forward_to.value
+	}
+}
