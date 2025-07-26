@@ -6,7 +6,7 @@ declare "local" {
 	loki.source.journal "local" {
 		forward_to = [loki.relabel.local.receiver]
     labels = {
-      component = "loki.source.journal"
+      component = "loki.source.journal",
     }
 	}
 
