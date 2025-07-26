@@ -1,4 +1,4 @@
-.PHONY: all install clean reinstall lint lint-md lint-markdown
+.PHONY: all install clean reinstall lint lint-md lint-markdown format format-md format-markdown
 
 default: all
 
@@ -23,3 +23,11 @@ lint: lint-markdown
 # Markdown linting
 lint-md lint-markdown:
 	@./scripts/lint-markdown.sh || true
+
+##################
+#   Formatting   #
+##################
+format: format-markdown
+
+format-md format-markdown:
+	@./scripts/format-markdown.sh || true

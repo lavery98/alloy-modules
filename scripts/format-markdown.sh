@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-echo "Performing Markdown linting"
+echo "Performing Markdown formatting"
 
 statusCode=0
-pnpm markdownlint-cli2 "**/*.md" "#node_modules"
+pnpm markdownlint-cli2 --fix "**/*.md" "#node_modules"
 currentCode="$?"
 
 # Only override the statusCode if it is 0
@@ -11,7 +11,7 @@ if [[ "$statusCode" == 0 ]]; then
   statusCode="$currentCode"
 fi
 
-pnpm prettier --check "**/*.md"
+pnpm prettier --write "**/*.md"
 currentCode="$?"
 
 # Only override the statusCode if it is 0
