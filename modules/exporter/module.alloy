@@ -1,25 +1,3 @@
-declare "self" {
-  prometheus.exporter.self "default" {}
-
-  discovery.relabel "self" {
-    targets = prometheus.exporter.self.default.targets
-
-    rule {
-      target_label = "job"
-      replacement = "node/alloy"
-    }
-
-    rule {
-      target_label = "namespace"
-      replacement = "node"
-    }
-  }
-
-  export "output" {
-    value = discovery.relabel.self.output
-  }
-}
-
 declare "unix" {
   prometheus.exporter.unix "default" {
     include_exporter_metrics = true
