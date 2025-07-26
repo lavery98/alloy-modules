@@ -1,0 +1,66 @@
+declare "local" {
+	argument "forward_to" {
+		comment = "A list(LogsReceiver) of where collected logs should be forwarded to (required)"
+	}
+
+	argument "namespace_label" {
+		comment  = "The namespace label to add for all logs (default: node)"
+		optional = true
+	}
+
+	argument "job_label" {
+		comment  = "The job label to add for all logs (default: node/journal)"
+		optional = true
+	}
+
+	loki.relabel "pre" {
+		forward_to = []
+
+		// Keep systemd unit
+		rule {
+			action        = "replace"
+			source_labels = ["__journal__systemd_unit"]
+			target_label  = "unit"
+		}
+
+		// Keep transport
+		rule {
+			action        = "replace"
+			source_labels = ["__journal__transport"]
+			target_label  = "transport"
+		}
+
+		// Keep severity
+		rule {
+			action        = "replace"
+			source_labels = ["__journal_priority_keyword"]
+			target_label  = "severity"
+		}
+	}
+
+	loki.source.journal "read" {
+		forward_to = [loki.relabel.post.receiver]
+		labels     = {
+			component = "loki.source.journal",
+		}
+		relabel_rules = loki.relabel.pre.rules
+	}
+
+	loki.relabel "post" {
+		forward_to = argument.forward_to.value
+
+		// Change job label for all logs
+		rule {
+			action       = "replace"
+			replacement  = coalesce(argument.job_label.value, "node/journal")
+			target_label = "job"
+		}
+
+		// Change namespace label for all logs
+		rule {
+			action       = "replace"
+			replacement  = coalesce(argument.namespace_label.value, "node")
+			target_label = "namespace"
+		}
+	}
+}

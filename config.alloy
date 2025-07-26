@@ -29,3 +29,15 @@ unix_metrics.scrape "scrape" {
 prometheus.relabel "blackhole" {
   forward_to = []
 }
+
+// Journal logs
+/*import.file "journal_logs" {
+  filename = "modules/system/journal/logs.alloy"
+}
+journal_logs.local "read" {
+  forward_to = [loki.relabel.blackhole.receiver]
+}*/
+
+loki.relabel "blackhole" {
+  forward_to = []
+}
