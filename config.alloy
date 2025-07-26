@@ -1,0 +1,31 @@
+/*
+ * Alloy configuration to allow for local debugging
+ */
+
+livedebugging {
+  enabled = true
+}
+
+// Alloy metrics
+/*import.file "alloy_metrics" {
+  filename = "modules/exporter/alloy/metrics.alloy"
+}
+alloy_metrics.local "targets" {}
+alloy_metrics.scrape "scrape" {
+  targets = alloy_metrics.local.targets.output
+  forward_to = [prometheus.relabel.blackhole.receiver]
+}*/
+
+// Unix metrics
+/*import.file "unix_metrics" {
+  filename = "modules/exporter/unix/metrics.alloy"
+}
+unix_metrics.local "targets" {}
+unix_metrics.scrape "scrape" {
+  targets = unix_metrics.local.targets.output
+  forward_to = [prometheus.relabel.blackhole.receiver]
+}*/
+
+prometheus.relabel "blackhole" {
+  forward_to = []
+}

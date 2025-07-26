@@ -1,0 +1,89 @@
+declare "local" {
+	argument "namespace_label" {
+		comment  = "The namespace label to add for all metrics (default: node)"
+		optional = true
+	}
+
+	prometheus.exporter.self "local" { }
+
+	discovery.relabel "local" {
+		targets = prometheus.exporter.self.local.targets
+
+		rule {
+			action       = "replace"
+			replacement  = coalesce(argument.namespace_label.value, "node")
+			target_label = "namespace"
+		}
+	}
+
+	export "output" {
+		value = discovery.relabel.local.output
+	}
+}
+
+declare "scrape" {
+	argument "targets" {
+		comment = "A list(map(string)) of targets to scrape (required)"
+	}
+
+	argument "forward_to" {
+		comment = "A list(MetricsReceiver) of where collected metrics should be forwarded to (required)"
+	}
+
+	argument "job_label" {
+		comment  = "The job label to add for all metrics (default: integrations/alloy)"
+		optional = true
+	}
+
+	argument "keep_metrics" {
+		comment  = "A regular expression of metrics to keep (default: see below)"
+		optional = true
+	}
+
+	argument "drop_metrics" {
+		comment  = "A regular expression of metrics to drop (default: see below)"
+		optional = true
+	}
+
+	argument "scrape_interval" {
+		comment  = "How often to scrape metrics from the targets (default: 60s)"
+		optional = true
+	}
+
+	argument "scrape_timeout" {
+		comment  = "How long before a scrape times out (default: 10s)"
+		optional = true
+	}
+
+	prometheus.scrape "alloy" {
+		forward_to      = [prometheus.relabel.alloy.receiver]
+		targets         = argument.targets.value
+		scrape_interval = coalesce(argument.scrape_interval.value, "60s")
+		scrape_timeout  = coalesce(argument.scrape_timeout.value, "10s")
+	}
+
+	prometheus.relabel "alloy" {
+		forward_to = argument.forward_to.value
+
+		// Drop metrics that match the drop_metrics regex
+		rule {
+			action        = "drop"
+			regex         = coalesce(argument.drop_metrics.value, "(^(go|process)_.+$)")
+			source_labels = ["__name__"]
+		}
+
+		// Keep only metrics that match the keep_metrics regex
+		rule {
+			action        = "keep"
+			regex         = coalesce(argument.keep_metrics.value, "(.*)")
+			source_labels = ["__name__"]
+		}
+
+		// Change job label for all metrics
+		rule {
+			action       = "replace"
+			replacement  = coalesce(argument.job_label.value, "integrations/alloy")
+			target_label = "job"
+		}
+	}
+}

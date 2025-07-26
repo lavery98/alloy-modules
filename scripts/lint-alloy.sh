@@ -1,12 +1,21 @@
 #!/usr/bin/env bash
 
+echo "Performing Alloy linting"
+
+# Check to see if alloy is installed
+if [[ "$(command -v alloy)" = "" ]]; then
+  echo "alloy is required to lint Alloy modules"
+  exit 1
+fi
+
 statusCode=0
 
 while read -r file; do
-  message=$(./alloy-linux-amd64 fmt "${file}" 2>&1)
+  message=$(alloy fmt "${file}" 2>&1)
   currentCode="$?"
   message=$(echo "${message}" | grep -v "Error: encountered errors during formatting")
 
+  # if the current code is 0, output the file name for logging purposes
   if [[ "${currentCode}" == 0 ]]; then
     echo "$file - no issues found"
   else
@@ -19,9 +28,14 @@ while read -r file; do
     done <<< "${message}"
   fi
 
-  if [[ "${statusCode}" == 0 ]]; then
-    statusCode="${currentCode}"
+  # Only override the statusCode if it is 0
+  if [[ "$statusCode" == 0 ]]; then
+    statusCode="$currentCode"
   fi
-done < <(find . -type f -name "*.alloy" -not -path "./.git/*" || true)
+done < <(find . -type f -name "*.alloy" -not -path "./node_modules/*" -not -path "./.git/*" || true)
+
+if [[ "$statusCode" == 0 ]]; then
+  echo "No issues found"
+fi
 
 exit "$statusCode"
