@@ -52,3 +52,44 @@ The following labels are automatically added to exported targets.
 | Label | Description                     |
 | :---- | :------------------------------ |
 | job   | Set to the value of `job_label` |
+
+---
+
+## Usage
+
+### `local`
+
+The following example will scrape alloy metrics on the local machine.
+
+```alloy
+import.git "alloy_metrics" {
+  repository = "https://github.com/lavery98/alloy-modules.git"
+  revision = "main"
+  path = "modules/exporter/alloy/metrics.alloy"
+  pull_frequency = "15m"
+}
+
+// Get the targets
+alloy_metrics.local "targets" {}
+
+// Get the metrics
+alloy_metrics.scrape "metrics" {
+    targets = alloy_metrics.local.targets.output
+    forward_to = [
+        prometheus.remote_write.default.receiver,
+    ]
+    scrape_interval = "15s"
+}
+
+// write the metrics
+prometheus.remote_write "default" {
+  endpoint {
+    url = "http://mimir:9009/api/v1/push"
+
+    basic_auth {
+      username = "example-user"
+      password = "example-password"
+    }
+  }
+}
+```
