@@ -9,10 +9,10 @@ importers:
   .:
     devDependencies:
       markdownlint-cli2:
-        specifier: ^0.18.1
+        specifier: 0.18.1
         version: 0.18.1
       prettier:
-        specifier: ^3.6.2
+        specifier: 3.6.2
         version: 3.6.2
 
 packages:
