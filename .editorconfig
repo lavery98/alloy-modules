@@ -13,3 +13,7 @@ trim_trailing_whitespace = true
 # Makefiles
 [{Makefile,**.mk}]
 indent_style = tab
+
+# Markdown
+[*.md]
+max_line_length = 500

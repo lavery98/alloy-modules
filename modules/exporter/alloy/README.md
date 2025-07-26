@@ -11,10 +11,14 @@ Handles scraping Grafana Alloy metrics.
 
 #### Arguments
 
+| Name              | Optional | Default | Description                                |
+| :---------------- | :------- | :------ | :----------------------------------------- |
+| `namespace_label` | `true`   | `node`  | The namespace label to add for all metrics |
+
 #### Exports
 
-| Name | Type | Descriptions |
-| :- | :- | :- |
+| Name     | Type                | Descriptions               |
+| :------- | :------------------ | :------------------------- |
 | `output` | `list(map(string))` | List of discovered targets |
 
 #### Labels
@@ -22,7 +26,3 @@ Handles scraping Grafana Alloy metrics.
 ---
 
 ### `scrape`
-
-#### Arguments
-
-#### Labels
