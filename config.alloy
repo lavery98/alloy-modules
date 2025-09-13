@@ -12,8 +12,17 @@ declare "configuration" {
   }
 }
 
+configuration "default" { }
+
 // Alloy metrics
-/*import.file "alloy_metrics" {
+/*import.git "alloy" {
+    repository = "https://github.com/lavery98/alloy-modules.git"
+    revision = configuration.default.alloy_modules_revision
+    path = "modules/exporter/alloy/metrics.alloy"
+    pull_frequency = "15m"
+}
+
+import.file "alloy_metrics" {
   filename = "modules/exporter/alloy/metrics.alloy"
 }
 alloy_metrics.local "targets" {}
