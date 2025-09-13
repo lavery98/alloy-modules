@@ -1,0 +1,144 @@
+declare "discover" {
+  argument "label_filters" {
+    comment  = "The label filters to use to find matching targets (default: [])"
+    optional = true
+  }
+
+  argument "label_prefix" {
+    comment = "The prefix for the scrape labels to use (default: com.grafana.metrics)"
+    optional = true
+    default = "com.grafana.metrics"
+  }
+
+  argument "__label_prefix" {
+    comment = "This argument is used to transform the label_prefix argument into a valid label_prefix by removing unsupported characters."
+    optional = true
+    default = string.replace(string.replace(string.replace(coalesce(argument.label_prefix.value, "com.grafana.metrics"),".", "_"),"/", "_"),"-", "_")
+  }
+
+  discovery.docker "docker_containers" {
+    host                = "unix:///var/run/docker.sock"
+    match_first_network = true
+
+    filter {
+      name = "label"
+      values = coalesce(argument.label_filters.value, [])
+    }
+  }
+
+  discovery.relabel "docker_metrics" {
+    targets = discovery.docker.docker_containers.targets
+
+    // Set scrape port to the scrape lablel if it exists
+    rule {
+      action        = "replace"
+      source_labels = [
+        "__address__",
+        "__meta_docker_container_label_" + argument.__label_prefix.value + "_port",
+      ]
+      separator     = ";"
+      regex         = "^([^:]+)(?::\\d+)?;(\\d+)$"
+      replacement   = "$1:$2"
+      target_label  = "__address__"
+    }
+
+    // Set the scrape path to the scrape path label if it exists
+    rule {
+      action        = "replace"
+      source_labels = ["__meta_docker_container_label_" + argument.__label_prefix.value + "_path"]
+      target_label  = "__metrics_path__"
+    }
+
+    // Set the namespace to the docker compose project label if it exists
+    rule {
+      action        = "replace"
+      source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+      target_label  = "namespace"
+    }
+
+    // Set the job to the docker compose project and service labels if they exist
+    rule {
+      action        = "replace"
+      source_labels = [
+        "__meta_docker_container_label_com_docker_compose_project",
+        "__meta_docker_container_label_com_docker_compose_service",
+      ]
+      separator     = "/"
+      target_label  = "job"
+    }
+
+    // Set the container name
+    rule {
+      action        = "replace"
+      regex         = "/(.*)"
+      source_labels = ["__meta_docker_container_name"]
+      target_label  = "container"
+    }
+
+    // Set the source
+    rule {
+      action       = "replace"
+      replacement  = "docker"
+      target_label = "source"
+    }
+  }
+
+  export "output" {
+    value = discovery.relabel.docker_metrics.output
+  }
+}
+
+declare "scrape" {
+  argument "targets" {
+		comment = "A list(map(string)) of targets to scrape (required)"
+	}
+
+	argument "forward_to" {
+		comment = "A list(MetricsReceiver) of where collected metrics should be forwarded to (required)"
+	}
+
+  argument "keep_metrics" {
+		comment  = "A regular expression of metrics to keep (default: see below)"
+		optional = true
+	}
+
+	argument "drop_metrics" {
+		comment  = "A regular expression of metrics to drop (default: see below)"
+		optional = true
+	}
+
+	argument "scrape_interval" {
+		comment  = "How often to scrape metrics from the targets (default: 60s)"
+		optional = true
+	}
+
+	argument "scrape_timeout" {
+		comment  = "How long before a scrape times out (default: 10s)"
+		optional = true
+	}
+
+  prometheus.scrape "docker" {
+    forward_to      = [prometheus.relabel.docker.receiver]
+    targets         = argument.targets.value
+    scrape_interval = coalesce(argument.scrape_interval.value, "60s")
+		scrape_timeout  = coalesce(argument.scrape_timeout.value, "10s")
+  }
+
+  prometheus.relabel "docker" {
+    forward_to = argument.forward_to.value
+
+    // Drop metrics that match the drop_metrics regex
+		rule {
+			action        = "drop"
+			regex         = coalesce(argument.drop_metrics.value, "")
+			source_labels = ["__name__"]
+		}
+
+		// Keep only metrics that match the keep_metrics regex
+		rule {
+			action        = "keep"
+			regex         = coalesce(argument.keep_metrics.value, "(.*)")
+			source_labels = ["__name__"]
+		}
+  }
+}

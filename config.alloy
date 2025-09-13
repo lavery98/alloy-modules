@@ -41,6 +41,17 @@ unix_metrics.scrape "scrape" {
   forward_to = [prometheus.relabel.blackhole.receiver]
 }*/
 
+// Docker container metrics
+import.file "docker_metrics" {
+  filename = "modules/system/docker/metrics.alloy"
+}
+docker_metrics.discover "containers" {
+}
+docker_metrics.scrape "scrape" {
+  targets = docker_metrics.discover.containers.output
+  forward_to = [prometheus.relabel.blackhole.receiver]
+}
+
 prometheus.relabel "blackhole" {
   forward_to = []
 }
@@ -50,6 +61,18 @@ prometheus.relabel "blackhole" {
   filename = "modules/system/journal/logs.alloy"
 }
 journal_logs.local "read" {
+  forward_to = [loki.relabel.blackhole.receiver]
+}*/
+
+// Docker logs
+/*import.file "docker_logs" {
+  filename = "modules/system/docker/logs.alloy"
+}
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+docker_logs.local "read" {
+  targets = discovery.docker.containers.targets
   forward_to = [loki.relabel.blackhole.receiver]
 }*/
 

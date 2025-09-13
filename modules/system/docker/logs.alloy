@@ -12,34 +12,41 @@ declare "local" {
 
     // Set the namespace to the docker compose project label if it exists
     rule {
-      action       = "replace"
+      action        = "replace"
       source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
-      target_label = "namespace"
+      target_label  = "namespace"
     }
 
     // Set the job to the docker compose project and service labels if they exist
     rule {
-      action       = "replace"
+      action        = "replace"
       source_labels = [
         "__meta_docker_container_label_com_docker_compose_project",
         "__meta_docker_container_label_com_docker_compose_service",
       ]
-      separator   = "/"
-      target_label = "job"
+      separator     = "/"
+      target_label  = "job"
     }
 
     // Set the container name
     rule {
       action        = "replace"
-      regex = "/(.*)"
+      regex         = "/(.*)"
       source_labels = ["__meta_docker_container_name"]
       target_label  = "container"
+    }
+
+    // Set the source
+    rule {
+      action       = "replace"
+      replacement  = "docker"
+      target_label = "source"
     }
   }
 
   loki.source.docker "read" {
-    host = "unix:///var/run/docker.sock"
-    targets = discovery.relabel.docker_logs.output
+    host       = "unix:///var/run/docker.sock"
+    targets    = discovery.relabel.docker_logs.output
     forward_to = [loki.process.docker_parse.receiver]
   }
 
