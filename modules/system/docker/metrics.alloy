@@ -107,6 +107,11 @@ declare "scrape" {
 		optional = true
 	}
 
+  argument "bearer_token" {
+    comment  = "Bearer token for authentication (default: none)"
+    optional = true
+  }
+
 	argument "scrape_interval" {
 		comment  = "How often to scrape metrics from the targets (default: 60s)"
 		optional = true
@@ -120,6 +125,7 @@ declare "scrape" {
   prometheus.scrape "docker" {
     forward_to      = [prometheus.relabel.docker.receiver]
     targets         = argument.targets.value
+    bearer_token    = coalesce(argument.bearer_token.value, "")
     scrape_interval = coalesce(argument.scrape_interval.value, "60s")
 		scrape_timeout  = coalesce(argument.scrape_timeout.value, "10s")
   }

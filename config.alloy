@@ -42,7 +42,7 @@ unix_metrics.scrape "scrape" {
 }*/
 
 // Docker container metrics
-import.file "docker_metrics" {
+/*import.file "docker_metrics" {
   filename = "modules/system/docker/metrics.alloy"
 }
 docker_metrics.discover "containers" {
@@ -54,7 +54,7 @@ docker_metrics.scrape "scrape" {
 
 prometheus.relabel "blackhole" {
   forward_to = []
-}
+}*/
 
 // Journal logs
 /*import.file "journal_logs" {
