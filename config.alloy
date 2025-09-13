@@ -6,6 +6,12 @@ livedebugging {
   enabled = true
 }
 
+declare "configuration" {
+  export "alloy_modules_revision" {
+    value = "v0.1.5"
+  }
+}
+
 // Alloy metrics
 /*import.file "alloy_metrics" {
   filename = "modules/exporter/alloy/metrics.alloy"
