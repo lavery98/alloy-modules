@@ -59,10 +59,10 @@ loki.write "default" {
 
 **Components:**
 
-- [`local`](#local-1)
+- [`discover`](#discover)
 - [`scrape`](#scrape)
 
-### `local`
+### `discover`
 
 #### Arguments
 
