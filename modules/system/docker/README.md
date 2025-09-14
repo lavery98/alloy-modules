@@ -20,7 +20,7 @@ Handles scraping metrics and reading logs from Docker.
 | Name         | Optional | Default                 | Description                                           |
 | :----------- | :------- | :---------------------- | :---------------------------------------------------- |
 | `targets`    | `false`  | `list(map(string))`     | A list of targets to read logs from                   |
-| `forward_to` | `false`  | `list(MetricsReceiver)` | A list of where collected logs should be forwarded to |
+| `forward_to` | `false`  | `list(LogsReceiver)`    | A list of where collected logs should be forwarded to |
 
 ### Usage
 
