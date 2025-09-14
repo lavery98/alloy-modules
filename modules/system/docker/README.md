@@ -9,7 +9,7 @@ Handles scraping metrics and reading logs from Docker.
 
 ## `logs.alloy`
 
-**Components**
+**Components:**
 
 - [`local`](#local)
 
@@ -57,7 +57,7 @@ loki.write "default" {
 
 ## `metrics.alloy`
 
-**Components**
+**Components:**
 
 - [`local`](#local-1)
 - [`scrape`](#scrape)
@@ -81,15 +81,15 @@ loki.write "default" {
 
 #### Arguments
 
-| Name              | Optional | Default                       | Description                                              |
-| :---------------- | :------- | :---------------------------- | :------------------------------------------------------- |
-| `targets`         | `false`  | `list(map(string))`           | A list of targets to scrape                              |
-| `forward_to`      | `false`  | `list(MetricsReceiver)`       | A list of where collected metrics should be forwarded to |
+| Name              | Optional | Default                        | Description                                              |
+| :---------------- | :------- | :----------------------------- | :------------------------------------------------------- |
+| `targets`         | `false`  | `list(map(string))`            | A list of targets to scrape                              |
+| `forward_to`      | `false`  | `list(MetricsReceiver)`        | A list of where collected metrics should be forwarded to |
 | `keep_metrics`    | `true`   | [see code](metrics.alloy#L146) | A regular expression of metrics to keep                  |
 | `drop_metrics`    | `true`   | [see code](metrics.alloy#L139) | A regular expression of metrics to drop                  |
-| `bearer_token`    | `true`   | `none`                        | Bearer token for authentication                          |
-| `scrape_interval` | `true`   | `60s`                         | How often to scrape metrics from the targets             |
-| `scrape_timeout`  | `true`   | `10s`                         | How long before a scrape times out                       |
+| `bearer_token`    | `true`   | `none`                         | Bearer token for authentication                          |
+| `scrape_interval` | `true`   | `60s`                          | How often to scrape metrics from the targets             |
+| `scrape_timeout`  | `true`   | `10s`                          | How long before a scrape times out                       |
 
 ### Usage
 
