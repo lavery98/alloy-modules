@@ -1,0 +1,44 @@
+declare "self_hosted" {
+  argument "metrics_endpoint_url" {
+    comment = ""
+    optional = true
+    default = coalesce(sys.env("SELF_HOSTED_METRICS_ENDPOINT_URL"), "http://mimir:8080/api/v1/push")
+  }
+
+  argument "logs_endpoint_url" {
+    comment = ""
+    optional = true
+    default = coalesce(sys.env("SELF_HOSTED_LOGS_ENDPOINT_URL"), "http://loki:3100/loki/api/v1/push")
+  }
+
+  argument "external_labels" {
+    comment = ""
+    optional = true
+    default = {}
+  }
+
+  prometheus.remote_write "self_hosted" {
+    endpoint {
+      url = argument.metrics_endpoint_url.value
+      send_native_histograms = true
+    }
+
+    external_labels = argument.external_labels.value
+  }
+
+  loki.write "self_hosted" {
+    endpoint {
+      url = argument.logs_endpoint_url.value
+    }
+
+    external_labels = argument.external_labels.value
+  }
+
+  export "metrics_receiver" {
+    value = prometheus.remote_write.self_hosted.receiver
+  }
+
+  export "logs_receiver" {
+    value = loki.write.self_hosted.receiver
+  }
+}
