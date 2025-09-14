@@ -1,0 +1,31 @@
+declare "local" {
+  argument "port" {
+    comment  = "The port to scrape metrics from (default: 3903)"
+    optional = true
+  }
+
+  argument "namespace_label" {
+    comment  = "The namespace label to add for all metrics (default: node)"
+    optional = true
+  }
+
+  argument "job_label" {
+    comment  = "The job label to add for all metrics (default: node/garage)"
+    optional = true
+  }
+
+  discovery.relabel "local" {
+    targets = [
+      {
+        "__address__" = "localhost:" + coalesce(argument.port.value, "3903"),
+        "namespace" = coalesce(argument.namespace_label.value, "node"),
+        "job" = coalesce(argument.job_label.value, "node/garage"),
+        "source" = "local",
+      },
+    ]
+  }
+
+  export "output" {
+    value = discovery.relabel.local.output
+  }
+}
