@@ -11,6 +11,12 @@ declare "self_hosted" {
     default = coalesce(sys.env("SELF_HOSTED_LOGS_ENDPOINT_URL"), "http://loki:3100/loki/api/v1/push")
   }
 
+  argument "traces_endpoint_url" {
+    comment = ""
+    optional = true
+    default = coalesce(sys.env("SELF_HOSTED_TRACES_ENDPOINT_URL"), "http://tempo:4318")
+  }
+
   argument "external_labels" {
     comment = ""
     optional = true
@@ -34,11 +40,21 @@ declare "self_hosted" {
     external_labels = argument.external_labels.value
   }
 
+  otelcol.exporter.otlphttp "self_hosted" {
+    client {
+      endpoint = argument.traces_endpoint_url.value
+    }
+  }
+
   export "metrics_receiver" {
     value = prometheus.remote_write.self_hosted.receiver
   }
 
   export "logs_receiver" {
     value = loki.write.self_hosted.receiver
+  }
+
+  export "traces_receiver" {
+    value = otelcol.exporter.otlphttp.self_hosted.input
   }
 }
