@@ -1,24 +1,24 @@
 declare "self_hosted" {
   argument "metrics_endpoint_url" {
-    comment = ""
+    comment = "Where to send collected metrics (default: http://mimir:8080/api/v1/push)."
     optional = true
     default = coalesce(sys.env("SELF_HOSTED_METRICS_ENDPOINT_URL"), "http://mimir:8080/api/v1/push")
   }
 
   argument "logs_endpoint_url" {
-    comment = ""
+    comment = "Where to send collected logs (default: http://loki:3100/loki/api/v1/push)."
     optional = true
     default = coalesce(sys.env("SELF_HOSTED_LOGS_ENDPOINT_URL"), "http://loki:3100/loki/api/v1/push")
   }
 
   argument "traces_endpoint_url" {
-    comment = ""
+    comment = "Where to send collected traces (default: http://tempo:4318)."
     optional = true
     default = coalesce(sys.env("SELF_HOSTED_TRACES_ENDPOINT_URL"), "http://tempo:4318")
   }
 
   argument "external_labels" {
-    comment = ""
+    comment = "External labels to add to all metrics and logs."
     optional = true
     default = {}
   }
