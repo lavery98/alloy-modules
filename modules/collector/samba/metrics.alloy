@@ -24,6 +24,10 @@ declare "local" {
       },
     ]
   }
+
+  export "output" {
+    value = discovery.relabel.local.output
+  }
 }
 
 declare "scrape" {
