@@ -3,3 +3,4 @@
 Modules related to collecting from external sources
 
 - [garage](./garage/)
+- [samba](./samba/)
