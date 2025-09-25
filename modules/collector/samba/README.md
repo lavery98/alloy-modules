@@ -38,7 +38,7 @@ Handles scraping [samba_exporter](https://github.com/imker25/samba_exporter) met
 
 ## Usage
 
-The following example will scrape Garage metrics on the local machine.
+The following example will scrape Samba metrics on the local machine.
 
 ```alloy
 import.git "samba_metrics" {
