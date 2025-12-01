@@ -43,7 +43,7 @@ declare "component_cadvisor" {
 		docker_host = "unix:///var/run/docker.sock"
 		docker_only = true
 
-		store_container_labels       = true
+		store_container_labels       = false
 		allowlisted_container_labels = [
 			"com.docker.compose.project",
 			"com.docker.compose.service",
