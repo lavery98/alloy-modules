@@ -88,7 +88,7 @@ declare "component_cadvisor" {
      *************************/
 	// https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.scrape/
 	prometheus.scrape "exporter_cadvisor" {
-		targets = discovery.relabel.exporter_cadvisor.targets
+		targets = discovery.relabel.exporter_cadvisor.output
 
 		scrape_interval = argument.scrape_interval.value
 		scrape_timeout  = argument.scrape_timeout.value
