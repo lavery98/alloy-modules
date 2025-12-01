@@ -93,7 +93,7 @@ declare "component_cadvisor" {
 		scrape_interval = argument.scrape_interval.value
 		scrape_timeout  = argument.scrape_timeout.value
 
-		forward_to = prometheus.relabel.exporter_cadvisor.receiver
+		forward_to = [prometheus.relabel.exporter_cadvisor.receiver]
 	}
 
 	/******************************
