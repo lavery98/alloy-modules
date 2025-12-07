@@ -1,0 +1,120 @@
+declare "components_cadvisor" {
+	/*****************
+	 *   Arguments   *
+	 *****************/
+	argument "forward_to" {
+		comment = "A list(MetricsReceiver) of where collected metrics should be forwarded to (required)"
+	}
+
+	argument "namespace_label" {
+		comment  = "The namespace label to add for all metrics (default: node)"
+		optional = true
+		default  = "node"
+	}
+
+	argument "job_label" {
+		comment  = "The job label to add for all metrics (default: integrations/cadvisor)"
+		optional = true
+		default  = "integrations/cadvisor"
+	}
+
+	argument "instance_name" {
+		comment  = "The instance name to add for all metrics (default: system hostname)"
+		optional = true
+	}
+
+	argument "scrape_interval" {
+		comment  = "How often to scrape metrics from the targets (default: 60s)"
+		optional = true
+		default  = "60s"
+	}
+
+	argument "scrape_timeout" {
+		comment  = "How long before a scrape times out (default: 10s)"
+		optional = true
+		default  = "10s"
+	}
+
+	/*************************
+	 *   cAdvisor exporter   *
+	 *************************/
+	// https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.exporter.cadvisor/
+	prometheus.exporter.cadvisor "exporter_cadvisor" {
+		docker_host = "unix:///var/run/docker.sock"
+		docker_only = true
+
+		store_container_labels       = false
+		allowlisted_container_labels = [
+			"com.docker.compose.project",
+			"com.docker.compose.service",
+		]
+
+		enabled_metrics = [
+			"app",
+			"cpu",
+			"disk",
+			"diskIO",
+			"memory",
+			"network",
+			"process",
+		]
+	}
+
+	/*****************************
+	 *   Pre-scrape relabeling   *
+	 *****************************/
+	// https://grafana.com/docs/alloy/latest/reference/components/discovery/discovery.relabel/
+	discovery.relabel "exporter_cadvisor" {
+		targets = prometheus.exporter.cadvisor.exporter_cadvisor.targets
+
+		rule {
+			target_label = "namespace"
+			replacement  = argument.namespace_label.value
+		}
+
+		rule {
+			target_label = "job"
+			replacement  = argument.job_label.value
+		}
+
+		rule {
+			target_label = "instance"
+			replacement  = coalesce(argument.instance_name.value, constants.hostname)
+		}
+	}
+
+	/*************************
+     *   Prometheus scrape   *
+     *************************/
+	// https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.scrape/
+	prometheus.scrape "exporter_cadvisor" {
+		targets = discovery.relabel.exporter_cadvisor.output
+
+		scrape_interval = argument.scrape_interval.value
+		scrape_timeout  = argument.scrape_timeout.value
+
+		forward_to = [prometheus.relabel.exporter_cadvisor.receiver]
+	}
+
+	/******************************
+     *   Post-scrape relabeling   *
+     ******************************/
+	// https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.relabel/
+	prometheus.relabel "exporter_cadvisor" {
+		forward_to = argument.forward_to.value
+
+		rule {
+			source_labels = [
+				"container_label_com_docker_compose_service",
+			]
+			target_label = "pod"
+		}
+
+		rule {
+			source_labels = [
+				"container_label_com_docker_compose_service",
+			]
+			target_label = "container"
+		}
+	}
+}
