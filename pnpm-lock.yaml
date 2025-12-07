@@ -9,7 +9,7 @@ importers:
   .:
     devDependencies:
       editorconfig-checker:
-        specifier: ^6.1.1
+        specifier: 6.1.1
         version: 6.1.1
       markdownlint-cli2:
         specifier: 0.19.1
