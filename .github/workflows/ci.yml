@@ -27,3 +27,31 @@ jobs:
           chmod +x /usr/local/bin/alloy
       - name: Run linting script
         run: './scripts/lint-alloy.sh'
+
+  lint-editorconfig:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 'lts/krypton'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run linting script
+        run: './scripts/lint-editorconfig.sh'
+
+  lint-markdown:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 'lts/krypton'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run linting script
+        run: './scripts/lint-markdown.sh'
