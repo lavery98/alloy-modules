@@ -1,7 +1,7 @@
-declare "component_cadvisor" {
+declare "components_cadvisor" {
 	/*****************
-     *   Arguments   *
-     *****************/
+	 *   Arguments   *
+	 *****************/
 	argument "forward_to" {
 		comment = "A list(MetricsReceiver) of where collected metrics should be forwarded to (required)"
 	}
@@ -36,8 +36,8 @@ declare "component_cadvisor" {
 	}
 
 	/*************************
-     *   cAdvisor exporter   *
-     *************************/
+	 *   cAdvisor exporter   *
+	 *************************/
 	// https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.exporter.cadvisor/
 	prometheus.exporter.cadvisor "exporter_cadvisor" {
 		docker_host = "unix:///var/run/docker.sock"
@@ -61,8 +61,8 @@ declare "component_cadvisor" {
 	}
 
 	/*****************************
-     *   Pre-scrape relabeling   *
-     *****************************/
+	 *   Pre-scrape relabeling   *
+	 *****************************/
 	// https://grafana.com/docs/alloy/latest/reference/components/discovery/discovery.relabel/
 	discovery.relabel "exporter_cadvisor" {
 		targets = prometheus.exporter.cadvisor.exporter_cadvisor.targets
