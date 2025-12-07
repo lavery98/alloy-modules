@@ -11,6 +11,7 @@ on:
 
 jobs:
   lint-alloy:
+    name: Lint Alloy
     runs-on: ubuntu-latest
 
     steps:
@@ -29,6 +30,7 @@ jobs:
         run: './scripts/lint-alloy.sh'
 
   lint-editorconfig:
+    name: Lint Editorconfig
     runs-on: ubuntu-latest
 
     steps:
@@ -43,6 +45,7 @@ jobs:
         run: './scripts/lint-editorconfig.sh'
 
   lint-markdown:
+    name: Lint Markdown
     runs-on: ubuntu-latest
 
     steps:
