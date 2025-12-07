@@ -1,58 +1,58 @@
 declare "local" {
-  argument "targets" {
-    comment = "A list(map(string)) of targets to read logs from (required)"
-  }
+	argument "targets" {
+		comment = "A list(map(string)) of targets to read logs from (required)"
+	}
 
-  argument "forward_to" {
-    comment = "A list(LogsReceiver) of where collected logs should be forwarded to (required)"
-  }
+	argument "forward_to" {
+		comment = "A list(LogsReceiver) of where collected logs should be forwarded to (required)"
+	}
 
-  discovery.relabel "docker_logs" {
-    targets = argument.targets.value
+	discovery.relabel "docker_logs" {
+		targets = argument.targets.value
 
-    // Set the namespace to the docker compose project label if it exists
-    rule {
-      action        = "replace"
-      source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
-      target_label  = "namespace"
-    }
+		// Set the namespace to the docker compose project label if it exists
+		rule {
+			action        = "replace"
+			source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+			target_label  = "namespace"
+		}
 
-    // Set the job to the docker compose project and service labels if they exist
-    rule {
-      action        = "replace"
-      source_labels = [
-        "__meta_docker_container_label_com_docker_compose_project",
-        "__meta_docker_container_label_com_docker_compose_service",
-      ]
-      separator     = "/"
-      target_label  = "job"
-    }
+		// Set the job to the docker compose project and service labels if they exist
+		rule {
+			action        = "replace"
+			source_labels = [
+				"__meta_docker_container_label_com_docker_compose_project",
+				"__meta_docker_container_label_com_docker_compose_service",
+			]
+			separator    = "/"
+			target_label = "job"
+		}
 
-    // Set the container name
-    rule {
-      action        = "replace"
-      regex         = "/(.*)"
-      source_labels = ["__meta_docker_container_name"]
-      target_label  = "container"
-    }
+		// Set the container name
+		rule {
+			action        = "replace"
+			regex         = "/(.*)"
+			source_labels = ["__meta_docker_container_name"]
+			target_label  = "container"
+		}
 
-    // Set the source
-    rule {
-      action       = "replace"
-      replacement  = "docker"
-      target_label = "source"
-    }
-  }
+		// Set the source
+		rule {
+			action       = "replace"
+			replacement  = "docker"
+			target_label = "source"
+		}
+	}
 
-  loki.source.docker "read" {
-    host       = "unix:///var/run/docker.sock"
-    targets    = discovery.relabel.docker_logs.output
-    forward_to = [loki.process.docker_parse.receiver]
-  }
+	loki.source.docker "read" {
+		host       = "unix:///var/run/docker.sock"
+		targets    = discovery.relabel.docker_logs.output
+		forward_to = [loki.process.docker_parse.receiver]
+	}
 
-  loki.process "docker_parse" {
-    forward_to = argument.forward_to.value
+	loki.process "docker_parse" {
+		forward_to = argument.forward_to.value
 
-    stage.docker {}
-  }
+		stage.docker { }
+	}
 }

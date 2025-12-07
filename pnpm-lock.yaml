@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      editorconfig-checker:
+        specifier: 6.1.1
+        version: 6.1.1
       markdownlint-cli2:
         specifier: 0.19.1
         version: 0.19.1
@@ -83,6 +86,11 @@ packages:
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
+
+  editorconfig-checker@6.1.1:
+    resolution: {integrity: sha512-kiOb6qaWpMNt7Z/43ba0Pa1Inhr2/t9nKbvEKtCeXJ5AesztoM9AgLOOQVB4QUv/nGjgz3xkbx4pcogVRD2NWw==}
+    engines: {node: '>=20.11.0'}
+    hasBin: true
 
   entities@4.5.0:
     resolution: {integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==}
@@ -354,6 +362,8 @@ snapshots:
   devlop@1.1.0:
     dependencies:
       dequal: 2.0.3
+
+  editorconfig-checker@6.1.1: {}
 
   entities@4.5.0: {}
 

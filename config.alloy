@@ -3,79 +3,87 @@
  */
 
 livedebugging {
-  enabled = true
+	enabled = true
 }
 
 declare "configuration" {
-  export "alloy_modules_revision" {
-    value = "v0.1.5"
-  }
+	export "alloy_modules_revision" {
+		value = "v0.1.5"
+	}
 }
 
 configuration "default" { }
 
 // Alloy metrics
 /*import.git "alloy" {
-    repository = "https://github.com/lavery98/alloy-modules.git"
-    revision = configuration.default.alloy_modules_revision
-    path = "modules/exporter/alloy/metrics.alloy"
-    pull_frequency = "15m"
+	repository     = "https://github.com/lavery98/alloy-modules.git"
+	revision       = configuration.default.alloy_modules_revision
+	path           = "modules/exporter/alloy/metrics.alloy"
+	pull_frequency = "15m"
 }
 
 import.file "alloy_metrics" {
-  filename = "modules/exporter/alloy/metrics.alloy"
+	filename = "modules/exporter/alloy/metrics.alloy"
 }
-alloy_metrics.local "targets" {}
+
+alloy_metrics.local "targets" { }
+
 alloy_metrics.scrape "scrape" {
-  targets = alloy_metrics.local.targets.output
-  forward_to = [prometheus.relabel.blackhole.receiver]
+	targets    = alloy_metrics.local.targets.output
+	forward_to = [prometheus.relabel.blackhole.receiver]
 }*/
 
 // Unix metrics
 /*import.file "unix_metrics" {
-  filename = "modules/exporter/unix/metrics.alloy"
+	filename = "modules/exporter/unix/metrics.alloy"
 }
-unix_metrics.local "targets" {}
+
+unix_metrics.local "targets" { }
+
 unix_metrics.scrape "scrape" {
-  targets = unix_metrics.local.targets.output
-  forward_to = [prometheus.relabel.blackhole.receiver]
+	targets    = unix_metrics.local.targets.output
+	forward_to = [prometheus.relabel.blackhole.receiver]
 }*/
 
 // Docker container metrics
 /*import.file "docker_metrics" {
-  filename = "modules/system/docker/metrics.alloy"
-}
-docker_metrics.discover "containers" {
-}
-docker_metrics.scrape "scrape" {
-  targets = docker_metrics.discover.containers.output
-  forward_to = [prometheus.relabel.blackhole.receiver]
+	filename = "modules/system/docker/metrics.alloy"
 }
 
-prometheus.relabel "blackhole" {
-  forward_to = []
+docker_metrics.discover "containers" { }
+
+docker_metrics.scrape "scrape" {
+	targets    = docker_metrics.discover.containers.output
+	forward_to = [prometheus.relabel.blackhole.receiver]
 }*/
+
+prometheus.relabel "blackhole" {
+	forward_to = []
+}
 
 // Journal logs
 /*import.file "journal_logs" {
-  filename = "modules/system/journal/logs.alloy"
+	filename = "modules/system/journal/logs.alloy"
 }
+
 journal_logs.local "read" {
-  forward_to = [loki.relabel.blackhole.receiver]
+	forward_to = [loki.relabel.blackhole.receiver]
 }*/
 
 // Docker logs
 /*import.file "docker_logs" {
-  filename = "modules/system/docker/logs.alloy"
+	filename = "modules/system/docker/logs.alloy"
 }
+
 discovery.docker "containers" {
-  host = "unix:///var/run/docker.sock"
+	host = "unix:///var/run/docker.sock"
 }
+
 docker_logs.local "read" {
-  targets = discovery.docker.containers.targets
-  forward_to = [loki.relabel.blackhole.receiver]
+	targets    = discovery.docker.containers.targets
+	forward_to = [loki.relabel.blackhole.receiver]
 }*/
 
 loki.relabel "blackhole" {
-  forward_to = []
+	forward_to = []
 }
