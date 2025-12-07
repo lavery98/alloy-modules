@@ -13,7 +13,6 @@ trim_trailing_whitespace = true
 # Alloy
 [*.alloy]
 indent_style = tab
-indent_size = 4
 
 # Makefiles
 [{Makefile,**.mk}]
