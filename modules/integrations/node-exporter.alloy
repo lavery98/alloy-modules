@@ -1,0 +1,134 @@
+declare "components_node_exporter" {
+	/*****************
+	 *   Arguments   *
+	 *****************/
+	argument "forward_to" {
+		comment = "A list(MetricsReceiver) of where collected metrics should be forwarded to (required)"
+	}
+
+	argument "namespace_label" {
+		comment  = "The namespace label to add for all metrics (default: node)"
+		optional = true
+		default  = "node"
+	}
+
+	argument "job_label" {
+		comment  = "The job label to add for all metrics (default: integrations/node_exporter)"
+		optional = true
+		default  = "integrations/node_exporter"
+	}
+
+	argument "instance_name" {
+		comment  = "The instance name to add for all metrics (default: system hostname)"
+		optional = true
+	}
+
+	argument "enable_collectors" {
+		comment  = "A list(string) of collectors to enable (default: [\"logind\", \"mountstats\", \"processes\", \"systemd\", \"tcpstat\"])"
+		optional = true
+	}
+
+	argument "disable_collectors" {
+		comment  = "A list(string) of collectors to disable (default: [\"mdadm\"])"
+		optional = true
+	}
+
+	argument "keep_metrics" {
+		comment  = "A regular expression of metrics to keep (default: (^(go)_.+$))"
+		optional = true
+	}
+
+	argument "drop_metrics" {
+		comment  = "A regular expression of metrics to drop (default: (.*))"
+		optional = true
+	}
+
+	argument "scrape_interval" {
+		comment  = "How often to scrape metrics from the targets (default: 60s)"
+		optional = true
+		default  = "60s"
+	}
+
+	argument "scrape_timeout" {
+		comment  = "How long before a scrape times out (default: 10s)"
+		optional = true
+		default  = "10s"
+	}
+
+	/*********************
+	 *   Unix exporter   *
+	 *********************/
+	// https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.exporter.unix/
+	prometheus.exporter.unix "integrations_node_exporter" {
+		include_exporter_metrics = true
+
+		enable_collectors  = coalesce(argument.enable_collectors.value, ["logind", "mountstats", "processes", "systemd", "tcpstat"])
+		disable_collectors = coalesce(argument.disable_collectors.value, ["mdadm"])
+	}
+
+	/*****************************
+	 *   Pre-scrape relabeling   *
+	 *****************************/
+	// https://grafana.com/docs/alloy/latest/reference/components/discovery/discovery.relabel/
+	discovery.relabel "integrations_node_exporter" {
+		targets = prometheus.exporter.unix.integrations_node_exporter.targets
+
+		rule {
+			target_label = "namespace"
+			replacement  = argument.namespace_label.value
+		}
+
+		rule {
+			target_label = "job"
+			replacement  = argument.job_label.value
+		}
+
+		rule {
+			target_label = "instance"
+			replacement  = coalesce(argument.instance_name.value, constants.hostname)
+		}
+	}
+
+	/*************************
+	 *   Prometheus scrape   *
+	 *************************/
+	// https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.scrape/
+	prometheus.scrape "integrations_node_exporter" {
+		targets = discovery.relabel.integrations_node_exporter.output
+
+		scrape_interval = argument.scrape_interval.value
+		scrape_timeout  = argument.scrape_timeout.value
+
+		forward_to = [prometheus.relabel.integrations_node_exporter.receiver]
+	}
+
+	/******************************
+	 *   Post-scrape relabeling   *
+	 ******************************/
+	// https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.relabel/
+	prometheus.relabel "integrations_node_exporter" {
+		forward_to = argument.forward_to.value
+
+		// Drop metrics that match the drop_metrics regex
+		rule {
+			action        = "drop"
+			regex         = coalesce(argument.drop_metrics.value, "(^(go)_.+$)")
+			source_labels = ["__name__"]
+		}
+
+		// Keep only metrics that match the keep_metrics regex
+		rule {
+			action        = "keep"
+			regex         = coalesce(argument.keep_metrics.value, "(.*)")
+			source_labels = ["__name__"]
+		}
+
+		// Drop metrics for certain file systems
+		rule {
+			action        = "drop"
+			regex         = "node_filesystem.*@(tmpfs)"
+			separator     = "@"
+			source_labels = ["__name__", "fstype"]
+		}
+	}
+}
