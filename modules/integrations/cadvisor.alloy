@@ -84,8 +84,8 @@ declare "components_cadvisor" {
 	}
 
 	/*************************
-     *   Prometheus scrape   *
-     *************************/
+	 *   Prometheus scrape   *
+	 *************************/
 	// https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.scrape/
 	prometheus.scrape "exporter_cadvisor" {
 		targets = discovery.relabel.exporter_cadvisor.output
@@ -97,8 +97,8 @@ declare "components_cadvisor" {
 	}
 
 	/******************************
-     *   Post-scrape relabeling   *
-     ******************************/
+	 *   Post-scrape relabeling   *
+	 ******************************/
 	// https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.relabel/
 	prometheus.relabel "exporter_cadvisor" {
 		forward_to = argument.forward_to.value
