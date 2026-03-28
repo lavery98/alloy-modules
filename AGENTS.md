@@ -93,8 +93,10 @@ Each module directory needs a `README.md` with:
 1. Short description paragraph.
 2. **Components** list (one bullet per `declare` block, linking to its section).
 3. Per-component sections containing:
-   - **Arguments** table: `Name | Optional | Default | Description`
-   - **Exports** table (if any): `Name | Type | Description`
+
+- **Arguments** table: `Name | Optional | Default | Description`
+- **Exports** table (if any): `Name | Type | Description`
+
 4. **Usage** section with a working `import.git` + instantiation example.
 
 Column alignment in tables must pass `markdownlint-cli2` and `prettier`.
