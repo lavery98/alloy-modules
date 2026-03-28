@@ -78,6 +78,7 @@ rule {
 ### Internal component naming
 
 Use the pattern `<component_type>.<module_context>` for internal block labels, e.g.:
+
 - `prometheus.scrape "integrations_alloy"`
 - `discovery.relabel "docker_metrics"`
 
@@ -104,14 +105,14 @@ Column alignment in tables must pass `markdownlint-cli2` and `prettier`.
 
 ## Tooling
 
-| Command | Purpose |
-| :--- | :--- |
-| `make install` | Install Node dev dependencies via pnpm |
-| `make lint` | Run all three linters (alloy, editorconfig, markdown) |
-| `make lint-alloy` | Validate and format-check `.alloy` files |
-| `make lint-editorconfig` | Check charset/indent/line-ending rules |
-| `make lint-markdown` | Lint and format-check Markdown |
-| `make format` | Auto-format Markdown with prettier |
+| Command                  | Purpose                                               |
+| :----------------------- | :---------------------------------------------------- |
+| `make install`           | Install Node dev dependencies via pnpm                |
+| `make lint`              | Run all three linters (alloy, editorconfig, markdown) |
+| `make lint-alloy`        | Validate and format-check `.alloy` files              |
+| `make lint-editorconfig` | Check charset/indent/line-ending rules                |
+| `make lint-markdown`     | Lint and format-check Markdown                        |
+| `make format`            | Auto-format Markdown with prettier                    |
 
 Always run `make lint` before marking a task complete. The CI pipeline runs the same checks on every push and PR.
 
