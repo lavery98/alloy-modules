@@ -1,0 +1,114 @@
+declare "components_tailscale" {
+	/*****************
+	 *   Arguments   *
+	 *****************/
+	argument "forward_to" {
+		comment = "A list(MetricsReceiver) of where collected metrics should be forwarded to (required)"
+	}
+
+	argument "tailscale_address" {
+		comment  = "The address where the Tailscale metrics endpoint is running (default: 100.100.100.100)"
+		optional = true
+	}
+
+	argument "namespace_label" {
+		comment  = "The namespace label to add for all metrics (default: node)"
+		optional = true
+		default  = "node"
+	}
+
+	argument "job_label" {
+		comment  = "The job label to add for all metrics (default: collectors/tailscale)"
+		optional = true
+		default  = "collectors/tailscale"
+	}
+
+	argument "instance_name" {
+		comment  = "The instance name to add for all metrics (default: system hostname)"
+		optional = true
+	}
+
+	argument "keep_metrics" {
+		comment  = "A regular expression of metrics to keep (default: (.*))"
+		optional = true
+	}
+
+	argument "drop_metrics" {
+		comment  = "A regular expression of metrics to drop (default: \"\")"
+		optional = true
+	}
+
+	argument "scrape_interval" {
+		comment  = "How often to scrape metrics from the targets (default: 60s)"
+		optional = true
+		default  = "60s"
+	}
+
+	argument "scrape_timeout" {
+		comment  = "How long before a scrape times out (default: 10s)"
+		optional = true
+		default  = "10s"
+	}
+
+	/*****************************
+	 *   Pre-scrape relabeling   *
+	 *****************************/
+	// https://grafana.com/docs/alloy/latest/reference/components/discovery/discovery.relabel/
+	discovery.relabel "collectors_tailscale" {
+		targets = [
+			{
+				"__address__"     = coalesce(argument.tailscale_address.value, "100.100.100.100"),
+			},
+		]
+
+		rule {
+			target_label = "namespace"
+			replacement  = argument.namespace_label.value
+		}
+
+		rule {
+			target_label = "job"
+			replacement  = argument.job_label.value
+		}
+
+		rule {
+			target_label = "instance"
+			replacement  = coalesce(argument.instance_name.value, constants.hostname)
+		}
+	}
+
+	/*************************
+	 *   Prometheus scrape   *
+	 *************************/
+	// https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.scrape/
+	prometheus.scrape "collectors_tailscale" {
+		targets = discovery.relabel.collectors_tailscale.output
+
+		scrape_interval = argument.scrape_interval.value
+		scrape_timeout  = argument.scrape_timeout.value
+
+		forward_to = [prometheus.relabel.collectors_tailscale.receiver]
+	}
+
+	/******************************
+	 *   Post-scrape relabeling   *
+	 ******************************/
+	// https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.relabel/
+	prometheus.relabel "collectors_tailscale" {
+		forward_to = argument.forward_to.value
+
+		// Drop metrics that match the drop_metrics regex
+		rule {
+			action        = "drop"
+			regex         = coalesce(argument.drop_metrics.value, "")
+			source_labels = ["__name__"]
+		}
+
+		// Keep only metrics that match the keep_metrics regex
+		rule {
+			action        = "keep"
+			regex         = coalesce(argument.keep_metrics.value, "(.*)")
+			source_labels = ["__name__"]
+		}
+	}
+}
