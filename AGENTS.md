@@ -4,15 +4,13 @@ This repository contains reusable [Grafana Alloy](https://grafana.com/docs/alloy
 
 ## Repository Layout
 
-```
-modules/
+`modules/
   collector/       # Modules that scrape external services (garage, samba)
   integrations/    # Built-in Alloy integrations (alloy, cadvisor, node-exporter)
   provider/        # Backend delivery targets (self_hosted: Mimir/Loki/Tempo)
   system/          # System-level collection (docker, journal)
 scripts/           # Lint and format shell scripts
-.github/workflows/ # CI (lint) and auto-tag on merge
-```
+.github/workflows/ # CI (lint) and auto-tag on merge`
 
 Each subdirectory under `modules/` contains `.alloy` files and a `README.md` documenting arguments, exports, and usage examples.
 
@@ -51,9 +49,7 @@ declare "component_name" {
 
 ### Standard pipeline pattern (metrics)
 
-```
-discover → discovery.relabel → prometheus.scrape → prometheus.relabel → forward_to
-```
+`discover → discovery.relabel → prometheus.scrape → prometheus.relabel → forward_to`
 
 - `discovery.relabel` sets `namespace`, `job`, `instance`, `container`, `source` labels before scraping.
 - `prometheus.relabel` applies `drop_metrics` and `keep_metrics` regex filters after scraping.
