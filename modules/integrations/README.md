@@ -7,6 +7,7 @@ Modules related to Alloy integrations.
 - [`components_alloy`](#components_alloy)
 - [`components_cadvisor`](#components_cadvisor)
 - [`components_node_exporter`](#components_node_exporter)
+- [`components_postgres`](#components_postgres)
 
 ### `components_alloy`
 
@@ -116,5 +117,45 @@ integrations_node_exporter.components_node_exporter "default" {
     provider.self_hosted.default.metrics_receiver,
   ]
   scrape_interval = "15s"
+}
+```
+
+### `components_postgres`
+
+#### Arguments
+
+| Name                     | Optional | Default                 | Description                                                                                                  |
+| :----------------------- | :------- | :---------------------- | :----------------------------------------------------------------------------------------------------------- |
+| `forward_to`             | `false`  | `list(MetricsReceiver)` | A list of where collected metrics should be forwarded to                                                     |
+| `data_source_names`      | `false`  | `list(string)`          | A list of PostgreSQL connection strings (e.g. `postgresql://user:password@host:5432/dbname?sslmode=disable`) |
+| `namespace_label`        | `true`   | `node`                  | The namespace label to add for all metrics                                                                   |
+| `job_label`              | `true`   | `integrations/postgres` | The job label to add for all metrics                                                                         |
+| `instance_name`          | `true`   | `system hostname`       | The instance name to add for all metrics                                                                     |
+| `autodiscover_databases` | `true`   | `false`                 | Whether to automatically discover and scrape all databases                                                   |
+| `keep_metrics`           | `true`   | `(.*)`                  | A regular expression of metrics to keep                                                                      |
+| `drop_metrics`           | `true`   |                         | A regular expression of metrics to drop                                                                      |
+| `scrape_interval`        | `true`   | `60s`                   | How often to scrape metrics from the targets                                                                 |
+| `scrape_timeout`         | `true`   | `10s`                   | How long before a scrape times out                                                                           |
+
+#### Exports
+
+This component has no exports.
+
+#### Example
+
+```alloy
+import.git "integrations_postgres" {
+  repository     = "https://github.com/lavery98/alloy-modules.git"
+  revision       = "main"
+  path           = "modules/integrations/postgres.alloy"
+  pull_frequency = "15m"
+}
+
+integrations_postgres.components_postgres "default" {
+  forward_to = [
+    provider.self_hosted.default.metrics_receiver,
+  ]
+  data_source_names = ["postgresql://user:password@host:5432/dbname?sslmode=disable"]
+  scrape_interval   = "15s"
 }
 ```
