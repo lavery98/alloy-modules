@@ -133,7 +133,7 @@ integrations_node_exporter.components_node_exporter "default" {
 | `instance_name`          | `true`   | `system hostname`       | The instance name to add for all metrics                                                                     |
 | `autodiscover_databases` | `true`   | `false`                 | Whether to automatically discover and scrape all databases                                                   |
 | `keep_metrics`           | `true`   | `(.*)`                  | A regular expression of metrics to keep                                                                      |
-| `drop_metrics`           | `true`   |                         | A regular expression of metrics to drop                                                                      |
+| `drop_metrics`           | `true`   | `""`                    | A regular expression of metrics to drop                                                                      |
 | `scrape_interval`        | `true`   | `60s`                   | How often to scrape metrics from the targets                                                                 |
 | `scrape_timeout`         | `true`   | `10s`                   | How long before a scrape times out                                                                           |
 

@@ -39,7 +39,7 @@ declare "components_postgres" {
 	}
 
 	argument "drop_metrics" {
-		comment  = "A regular expression of metrics to drop)"
+		comment  = "A regular expression of metrics to drop (default: \"\"))"
 		optional = true
 	}
 
