@@ -134,7 +134,7 @@ declare "components_node_exporter" {
 		// Drop metrics for certain systemd unit states as they have high cardinality
 		rule {
 			action = "drop"
-			regex = "node_systemd_unit_state_(?!failed).*"
+			regex = "node_systemd_unit_state_(activating|active|deactivating|inactive|reloading)"
 			separator = "_"
 			source_labels = ["__name__", "state"]
 		}
