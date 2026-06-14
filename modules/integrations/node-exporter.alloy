@@ -130,5 +130,13 @@ declare "components_node_exporter" {
 			separator     = "@"
 			source_labels = ["__name__", "fstype"]
 		}
+
+		// Drop metrics for certain systemd unit states as they have high cardinality
+		rule {
+			action = "drop"
+			regex = "node_systemd_unit_state_(?!failed).*"
+			separator = "_"
+			source_labels = ["__name__", "state"]
+		}
 	}
 }
